@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Ritual — Hábitos Diários</title>
+<meta name="description" content="Abra, veja os hábitos de hoje, marque como concluído. Consistência, sem complicação." />
+
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#F7F2EA" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#1C1712" media="(prefers-color-scheme: dark)" />
+
+<link rel="icon" href="icons/icon-192.png" type="image/png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Ritual" />
+<meta name="mobile-web-app-capable" content="yes" />
+
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Alternar tema"><svg viewBox="0 0 24 24" class="theme-icon" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 3.5a8.5 8.5 0 000 17V3.5z" fill="currentColor" stroke="none" /></svg></button>
+
+    <main id="view-root" class="view-root"></main>
+
+    <nav class="bottom-nav" aria-label="Navegação principal">
+      <button type="button" data-route="today" class="nav-btn" aria-current="page">
+        <svg viewBox="0 0 24 24" class="nav-icon" aria-hidden="true"><path d="M5 12.5L9.5 17L19 7" /></svg>
+        <span>Hoje</span>
+      </button>
+      <button type="button" data-route="habits" class="nav-btn">
+        <svg viewBox="0 0 24 24" class="nav-icon" aria-hidden="true"><circle cx="12" cy="12" r="7.5" /><path d="M12 8v4l3 2" /></svg>
+        <span>Hábitos</span>
+      </button>
+      <button type="button" data-route="history" class="nav-btn">
+        <svg viewBox="0 0 24 24" class="nav-icon" aria-hidden="true"><path d="M4 19V5M4 19h16M9 19v-7M14 19v-10" /></svg>
+        <span>Histórico</span>
+      </button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
