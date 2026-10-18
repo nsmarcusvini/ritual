@@ -1,4 +1,5 @@
-const CACHE_VERSION = 'ritual-v4';
+// troque a versão a cada deploy: é a mudança neste arquivo que faz os apps instalados se atualizarem
+const CACHE_VERSION = 'ritual-v5';
 
 const CORE_ASSETS = [
   './',
@@ -25,7 +26,11 @@ const CORE_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(CORE_ASSETS)).then(() => self.skipWaiting())
+    caches
+      .open(CACHE_VERSION)
+      // cache: 'reload' ignora o cache HTTP do host — sem isso a versão nova pode ser montada com arquivos velhos
+      .then((cache) => cache.addAll(CORE_ASSETS.map((url) => new Request(url, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
   );
 });
 

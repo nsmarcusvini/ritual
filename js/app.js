@@ -4,6 +4,7 @@ import { renderHistory } from './view-history.js';
 import { renderIdeas } from './view-ideas.js';
 import { openIdeaSheet } from './idea-sheet.js';
 import { getPendingIdeasCount } from './storage.js';
+import { toast } from './utils.js';
 import { applyTheme, getThemePref, cycleTheme, themeIcon } from './theme.js';
 
 const ROUTES = {
@@ -77,10 +78,64 @@ themeBtn.innerHTML = themeIcon(getThemePref());
 if (!location.hash) navigate('today');
 render();
 
+const UPDATED_FLAG = 'ritual:updated';
+
+try {
+  if (sessionStorage.getItem(UPDATED_FLAG)) {
+    sessionStorage.removeItem(UPDATED_FLAG);
+    toast('App atualizado');
+  }
+} catch {
+  // sessionStorage indisponível — só perde o aviso
+}
+
+function reloadForUpdate() {
+  try {
+    sessionStorage.setItem(UPDATED_FLAG, '1');
+  } catch {
+    // segue sem o aviso
+  }
+  location.reload();
+}
+
+// não recarrega no meio de uma anotação: espera o app ir para segundo plano
+function reloadWhenSafe() {
+  const busy = document.querySelector('.sheet-overlay.is-open, .confirm-overlay.is-open');
+  if (!busy || document.visibilityState === 'hidden') {
+    reloadForUpdate();
+    return;
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') reloadForUpdate();
+  });
+}
+
 if ('serviceWorker' in navigator) {
+  // sem controlador = primeira instalação; a primeira troca só "assume" a página, não é atualização
+  let hadController = Boolean(navigator.serviceWorker.controller);
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) {
+      hadController = true;
+      return;
+    }
+    if (reloading) return;
+    reloading = true;
+    reloadWhenSafe();
+  });
+
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {
-      // registro falhou (ex: arquivo servido fora de HTTPS/localhost) — app segue funcionando online
-    });
+    navigator.serviceWorker
+      .register('sw.js', { updateViaCache: 'none' })
+      .then((reg) => {
+        // PWA em modo app volta do segundo plano sem navegar, então o navegador não checa sozinho
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        });
+        setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+      })
+      .catch(() => {
+        // registro falhou (ex: arquivo servido fora de HTTPS/localhost) — app segue funcionando online
+      });
   });
 }
