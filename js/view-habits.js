@@ -1,5 +1,5 @@
 import { getHabits, setHabitActive } from './storage.js';
-import { escapeHTML, toast } from './utils.js';
+import { escapeHTML, toast, formatDays, periodLabel } from './utils.js';
 import { openHabitSheet } from './habit-sheet.js';
 
 export function renderHabits(root) {
@@ -53,7 +53,7 @@ function renderItem(habit) {
       <button type="button" class="manage-item-main">
         <span class="habit-icon" aria-hidden="true">${escapeHTML(habit.icon)}</span>
         <span class="manage-item-name">${escapeHTML(habit.name)}</span>
-        <span class="manage-item-freq">Todos os dias</span>
+        <span class="manage-item-freq">${escapeHTML(formatDays(habit.days))}${habit.period ? ` · ${periodLabel(habit.period)}` : ''}</span>
       </button>
       <button type="button" class="switch ${habit.active ? 'is-on' : ''}" role="switch" aria-checked="${habit.active}" aria-label="Ativar ou desativar ${escapeHTML(habit.name)}">
         <span class="switch-knob"></span>

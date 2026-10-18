@@ -13,6 +13,35 @@ export function formatLongDate(date = new Date()) {
   return { weekday, label: `${day} de ${month}` };
 }
 
+export const PERIODS = [
+  { value: 'morning', label: 'Manhã' },
+  { value: 'afternoon', label: 'Tarde' },
+  { value: 'night', label: 'Noite' },
+];
+
+export function periodLabel(period) {
+  return PERIODS.find((p) => p.value === period)?.label || 'Qualquer hora';
+}
+
+// ordem de exibição começando na segunda; valores seguem Date.getDay()
+export const WEEK_DAYS = [
+  { value: 1, short: 'S', label: 'Seg' },
+  { value: 2, short: 'T', label: 'Ter' },
+  { value: 3, short: 'Q', label: 'Qua' },
+  { value: 4, short: 'Q', label: 'Qui' },
+  { value: 5, short: 'S', label: 'Sex' },
+  { value: 6, short: 'S', label: 'Sáb' },
+  { value: 0, short: 'D', label: 'Dom' },
+];
+
+export function formatDays(days) {
+  if (!Array.isArray(days) || days.length === 7) return 'Todos os dias';
+  const set = new Set(days);
+  if (set.size === 5 && [1, 2, 3, 4, 5].every((d) => set.has(d))) return 'Dias úteis';
+  if (set.size === 2 && set.has(0) && set.has(6)) return 'Fim de semana';
+  return WEEK_DAYS.filter((d) => set.has(d.value)).map((d) => d.label).join(', ');
+}
+
 export function formatShortDate(dateKey) {
   const [, m, d] = dateKey.split('-');
   return `${d}/${m}`;

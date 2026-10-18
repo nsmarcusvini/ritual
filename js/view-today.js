@@ -1,19 +1,18 @@
-import { getActiveHabits, getDay, materializeToday, toggleCompletion, todayKey } from './storage.js';
-import { escapeHTML, formatLongDate } from './utils.js';
+import { getActiveHabits, getTodayHabits, getDay, materializeToday, toggleCompletion, todayKey } from './storage.js';
+import { escapeHTML, formatLongDate, PERIODS } from './utils.js';
 import { openHabitSheet } from './habit-sheet.js';
 
+const GROUPS = [...PERIODS, { value: null, label: 'Qualquer hora' }];
+
 export function renderToday(root) {
-  const habits = getActiveHabits();
+  const habits = getTodayHabits();
   materializeToday(habits);
   const day = getDay(todayKey());
   const entries = day ? day.entries : {};
 
-  const rows = habits.map((h) => entries[h.id]).filter(Boolean);
-  const total = rows.length;
-  const done = rows.filter((r) => r.done).length;
-  const pct = total ? Math.round((done / total) * 100) : 0;
-
+  const { total, done, pct } = computeProgress(habits, entries);
   const { weekday, label } = formatLongDate();
+  const hasAnyActive = getActiveHabits().length > 0;
 
   root.innerHTML = `
     <section class="view view-today" aria-labelledby="today-heading">
@@ -36,7 +35,7 @@ export function renderToday(root) {
         </div>
       </div>
 
-      ${total === 0 ? renderEmpty() : `<ul class="habit-list" id="habit-list">${habits.map((h) => renderRow(h, entries[h.id])).join('')}</ul>`}
+      ${total === 0 ? renderEmpty(hasAnyActive) : renderGroups(habits, entries)}
 
       <button type="button" class="add-habit-link" id="today-add-habit">
         <span class="add-habit-plus" aria-hidden="true">+</span> Novo hábito
@@ -62,6 +61,32 @@ export function renderToday(root) {
   });
 }
 
+function computeProgress(habits, entries) {
+  const rows = habits.map((h) => entries[h.id]).filter(Boolean);
+  const total = rows.length;
+  const done = rows.filter((r) => r.done).length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  return { total, done, pct };
+}
+
+function renderGroups(habits, entries) {
+  const visible = habits.filter((h) => entries[h.id]);
+  // sem nenhum período definido, mantém a lista simples de antes
+  if (!visible.some((h) => h.period)) {
+    return `<ul class="habit-list">${visible.map((h) => renderRow(h, entries[h.id])).join('')}</ul>`;
+  }
+  return GROUPS.map((group) => {
+    const items = visible.filter((h) => (h.period || null) === group.value);
+    if (!items.length) return '';
+    return `
+      <section class="period-group" aria-label="${group.label}">
+        <h2 class="period-title">${group.label}</h2>
+        <ul class="habit-list">${items.map((h) => renderRow(h, entries[h.id])).join('')}</ul>
+      </section>
+    `;
+  }).join('');
+}
+
 function renderRow(habit, entry) {
   const done = entry?.done;
   return `
@@ -75,7 +100,15 @@ function renderRow(habit, entry) {
   `;
 }
 
-function renderEmpty() {
+function renderEmpty(hasAnyActive) {
+  if (hasAnyActive) {
+    return `
+      <div class="empty-state">
+        <p class="empty-state-title">Dia livre</p>
+        <p class="empty-state-text">Nenhum hábito programado para hoje. Aproveite o descanso.</p>
+      </div>
+    `;
+  }
   return `
     <div class="empty-state">
       <p class="empty-state-title">Nenhum hábito ainda</p>
@@ -85,13 +118,8 @@ function renderEmpty() {
 }
 
 function updateProgress(root) {
-  const habits = getActiveHabits();
   const day = getDay(todayKey());
-  const entries = day ? day.entries : {};
-  const rows = habits.map((h) => entries[h.id]).filter(Boolean);
-  const total = rows.length;
-  const done = rows.filter((r) => r.done).length;
-  const pct = total ? Math.round((done / total) * 100) : 0;
+  const { total, done, pct } = computeProgress(getTodayHabits(), day ? day.entries : {});
 
   root.querySelector('.progress-count').innerHTML = `<strong>${done}</strong> de ${total} hábito${total === 1 ? '' : 's'}`;
   root.querySelector('.seal-fill').style.setProperty('--pct', pct);

@@ -1,9 +1,12 @@
 import { HABIT_ICONS, DEFAULT_ICON } from './icons.js';
 import { addHabit, updateHabit, deleteHabit } from './storage.js';
-import { escapeHTML, toast } from './utils.js';
+import { escapeHTML, toast, PERIODS, WEEK_DAYS, formatDays } from './utils.js';
 import { openConfirm } from './confirm.js';
 
 let overlayEl = null;
+
+const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+const PERIOD_OPTIONS = [{ value: null, label: 'Qualquer' }, ...PERIODS];
 
 function ensureOverlay() {
   if (overlayEl) return overlayEl;
@@ -17,6 +20,8 @@ function ensureOverlay() {
 export function openHabitSheet({ habit = null, onSaved } = {}) {
   const overlay = ensureOverlay();
   let selectedIcon = habit?.icon || DEFAULT_ICON;
+  const selectedDays = new Set(Array.isArray(habit?.days) ? habit.days : ALL_DAYS);
+  let selectedPeriod = habit?.period || null;
   const isEdit = Boolean(habit);
 
   overlay.innerHTML = `
@@ -26,6 +31,25 @@ export function openHabitSheet({ habit = null, onSaved } = {}) {
 
       <label class="field-label" for="habit-name-input">Nome</label>
       <input id="habit-name-input" class="text-input" type="text" maxlength="40" placeholder="Ex: Ler 20 minutos" value="${escapeHTML(habit?.name || '')}" autocomplete="off" />
+
+      <p class="field-label" id="days-label">Dias</p>
+      <div class="day-picker" id="day-picker" role="group" aria-labelledby="days-label">
+        ${WEEK_DAYS.map(
+          (d) => `
+          <button type="button" class="day-option ${selectedDays.has(d.value) ? 'is-selected' : ''}" data-day="${d.value}" aria-pressed="${selectedDays.has(d.value)}" aria-label="${d.label}">${d.short}</button>
+        `
+        ).join('')}
+      </div>
+      <p class="field-hint" id="days-hint">${formatDays([...selectedDays])}</p>
+
+      <p class="field-label" id="period-label">Período</p>
+      <div class="segmented" id="period-picker" role="radiogroup" aria-labelledby="period-label">
+        ${PERIOD_OPTIONS.map(
+          (p) => `
+          <button type="button" class="segmented-option ${p.value === selectedPeriod ? 'is-selected' : ''}" data-period="${p.value ?? ''}" role="radio" aria-checked="${p.value === selectedPeriod}">${p.label}</button>
+        `
+        ).join('')}
+      </div>
 
       <p class="field-label">Ícone</p>
       <div class="icon-grid" id="icon-grid" role="radiogroup" aria-label="Escolher ícone">
@@ -60,6 +84,32 @@ export function openHabitSheet({ habit = null, onSaved } = {}) {
     });
   });
 
+  const daysHint = overlay.querySelector('#days-hint');
+  overlay.querySelectorAll('.day-option').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const day = Number(btn.dataset.day);
+      if (selectedDays.has(day)) selectedDays.delete(day);
+      else selectedDays.add(day);
+      const on = selectedDays.has(day);
+      btn.classList.toggle('is-selected', on);
+      btn.setAttribute('aria-pressed', String(on));
+      daysHint.classList.remove('has-error');
+      daysHint.textContent = selectedDays.size ? formatDays([...selectedDays]) : 'Escolha pelo menos um dia';
+    });
+  });
+
+  overlay.querySelectorAll('.segmented-option').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      overlay.querySelectorAll('.segmented-option').forEach((b) => {
+        b.classList.remove('is-selected');
+        b.setAttribute('aria-checked', 'false');
+      });
+      btn.classList.add('is-selected');
+      btn.setAttribute('aria-checked', 'true');
+      selectedPeriod = btn.dataset.period || null;
+    });
+  });
+
   function close() {
     overlay.classList.remove('is-open');
   }
@@ -76,11 +126,17 @@ export function openHabitSheet({ habit = null, onSaved } = {}) {
       nameInput.classList.add('has-error');
       return;
     }
+    if (!selectedDays.size) {
+      daysHint.classList.add('has-error');
+      daysHint.textContent = 'Escolha pelo menos um dia';
+      return;
+    }
+    const days = [...selectedDays].sort();
     if (isEdit) {
-      updateHabit(habit.id, { name, icon: selectedIcon });
+      updateHabit(habit.id, { name, icon: selectedIcon, days, period: selectedPeriod });
       toast('Hábito atualizado');
     } else {
-      addHabit({ name, icon: selectedIcon });
+      addHabit({ name, icon: selectedIcon, days, period: selectedPeriod });
       toast('Hábito criado');
     }
     close();

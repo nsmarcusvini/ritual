@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'ritual-v2';
+const CACHE_VERSION = 'ritual-v3';
 
 const CORE_ASSETS = [
   './',

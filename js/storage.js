@@ -47,12 +47,27 @@ export function getActiveHabits() {
   return getHabits().filter((h) => h.active);
 }
 
-export function addHabit({ name, icon }) {
+// hábitos antigos não têm `days` — valem para todos os dias
+export function isScheduledOn(habit, date = new Date()) {
+  return !Array.isArray(habit.days) || habit.days.includes(date.getDay());
+}
+
+export function getTodayHabits() {
+  return getActiveHabits().filter((h) => isScheduledOn(h));
+}
+
+function newEntry(habit) {
+  return { name: habit.name, icon: habit.icon, period: habit.period || null, done: false, completedAt: null };
+}
+
+export function addHabit({ name, icon, days, period }) {
   const habits = getHabits();
   const habit = {
     id: uid(),
     name: name.trim(),
     icon: icon || '✓',
+    days: days || [0, 1, 2, 3, 4, 5, 6],
+    period: period || null,
     active: true,
     createdAt: new Date().toISOString(),
   };
@@ -68,16 +83,27 @@ export function updateHabit(id, patch) {
   if (!habit) return;
   if (typeof patch.name === 'string') habit.name = patch.name.trim();
   if (typeof patch.icon === 'string') habit.icon = patch.icon;
+  if (Array.isArray(patch.days)) habit.days = patch.days;
+  if (patch.period !== undefined) habit.period = patch.period || null;
   saveHabits(habits);
 
-  // mantém o snapshot de hoje coerente com a edição mais recente
+  // mantém o snapshot de hoje coerente com a edição mais recente,
+  // incluindo entrar/sair do checklist se os dias mudaram
   const logs = getLogs();
-  const day = logs[todayKey()];
-  if (day && day.entries[id]) {
-    day.entries[id].name = habit.name;
-    day.entries[id].icon = habit.icon;
-    saveLogs(logs);
+  const key = todayKey();
+  const day = logs[key] || { entries: {} };
+  const shouldShow = habit.active && isScheduledOn(habit);
+  if (day.entries[id]) {
+    if (shouldShow) {
+      Object.assign(day.entries[id], { name: habit.name, icon: habit.icon, period: habit.period || null });
+    } else {
+      delete day.entries[id];
+    }
+  } else if (shouldShow) {
+    day.entries[id] = newEntry(habit);
   }
+  logs[key] = day;
+  saveLogs(logs);
 }
 
 export function setHabitActive(id, active) {
@@ -91,8 +117,8 @@ export function setHabitActive(id, active) {
   const key = todayKey();
   const day = logs[key] || { entries: {} };
   if (active) {
-    if (!day.entries[id]) {
-      day.entries[id] = { name: habit.name, icon: habit.icon, done: false, completedAt: null };
+    if (!day.entries[id] && isScheduledOn(habit)) {
+      day.entries[id] = newEntry(habit);
     }
   } else {
     delete day.entries[id];
@@ -136,8 +162,8 @@ export function materializeToday(habitsList) {
   let changed = !logs[key];
 
   for (const habit of habits) {
-    if (habit.active && !day.entries[habit.id]) {
-      day.entries[habit.id] = { name: habit.name, icon: habit.icon, done: false, completedAt: null };
+    if (habit.active && isScheduledOn(habit) && !day.entries[habit.id]) {
+      day.entries[habit.id] = newEntry(habit);
       changed = true;
     }
   }
