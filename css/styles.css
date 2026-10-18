@@ -665,6 +665,237 @@ body::before {
   text-align: right;
 }
 
+/* ---------- Ideias ---------- */
+
+.idea-capture {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.idea-capture .text-input {
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.idea-capture-btn {
+  flex-shrink: 0;
+  width: 50px;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.idea-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.idea-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  background: var(--color-paper-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-m);
+  padding: 4px 4px 4px 14px;
+  transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+}
+
+.idea-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0;
+  text-align: left;
+}
+
+.idea-toggle .habit-check {
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+}
+
+.idea-toggle .habit-check-mark {
+  width: 14px;
+  height: 14px;
+}
+
+.idea-item.is-done .habit-check {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.idea-item.is-done .habit-check-mark {
+  stroke-dashoffset: 0;
+}
+
+.idea-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.idea-text {
+  font-size: 15px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.idea-item.is-done .idea-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--color-ink-faint);
+  color: var(--color-ink-soft);
+}
+
+.idea-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.idea-delete {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-ink-faint);
+  transition: color 0.2s var(--ease-out), background 0.2s var(--ease-out);
+}
+
+.idea-delete:hover {
+  color: var(--color-danger);
+  background: var(--color-accent-soft);
+}
+
+.idea-delete svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.idea-done-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 28px 0 10px;
+}
+
+.idea-done-head .period-title {
+  margin-bottom: 0;
+}
+
+.idea-clear {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  padding: 4px 6px;
+  transition: color 0.2s var(--ease-out);
+}
+
+.idea-clear:hover {
+  color: var(--color-danger);
+}
+
+.idea-list.is-done-list .idea-item {
+  background: transparent;
+}
+
+.idea-all-done {
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  text-align: center;
+  padding: 12px 0;
+}
+
+.sheet-subtitle {
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  margin: -10px 0 18px;
+  line-height: 1.5;
+}
+
+.idea-textarea {
+  resize: none;
+  font-family: var(--font-body);
+  line-height: 1.45;
+}
+
+/* botão flutuante — ancorado na nav (sticky), então acompanha o app em qualquer layout */
+.idea-fab {
+  position: absolute;
+  right: 18px;
+  top: -72px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: 0 10px 24px -8px rgba(20, 15, 10, 0.45);
+  transition: transform 0.25s var(--ease-out), opacity 0.25s var(--ease-out);
+}
+
+.idea-fab svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.idea-fab:active {
+  transform: scale(0.92);
+}
+
+.idea-fab.is-hidden {
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+}
+
+.nav-icon-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -9px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+.nav-badge[hidden] {
+  display: none;
+}
+
 /* ---------- navegação inferior ---------- */
 
 .bottom-nav {
@@ -967,6 +1198,7 @@ body::before {
   }
 
   #app {
+    width: 100%;
     min-height: min(860px, calc(100dvh - 80px));
     border-radius: 28px;
     overflow: hidden;

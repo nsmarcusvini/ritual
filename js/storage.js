@@ -2,6 +2,7 @@
 // é o próprio propósito: hábitos e registros diários do usuário vivem só neste dispositivo por ora.
 const KEY_HABITS = 'ritual:habits';
 const KEY_LOGS = 'ritual:logs';
+const KEY_IDEAS = 'ritual:ideas';
 
 function readJSON(key, fallback) {
   try {
@@ -207,6 +208,46 @@ export function getHistoryDays(limit = 60) {
     .sort((a, b) => (a < b ? 1 : -1))
     .slice(0, limit)
     .map((dateKey) => ({ dateKey, ...getDayStats(dateKey) }));
+}
+
+// ---- ideias (checklist avulso, sem vínculo com dias) ----
+
+export function getIdeas() {
+  return readJSON(KEY_IDEAS, []);
+}
+
+function saveIdeas(list) {
+  writeJSON(KEY_IDEAS, list);
+}
+
+export function addIdea(text) {
+  const ideas = getIdeas();
+  const idea = { id: uid(), text: text.trim(), done: false, createdAt: new Date().toISOString(), doneAt: null };
+  ideas.unshift(idea);
+  saveIdeas(ideas);
+  return idea;
+}
+
+export function toggleIdea(id) {
+  const ideas = getIdeas();
+  const idea = ideas.find((i) => i.id === id);
+  if (!idea) return null;
+  idea.done = !idea.done;
+  idea.doneAt = idea.done ? new Date().toISOString() : null;
+  saveIdeas(ideas);
+  return idea;
+}
+
+export function deleteIdea(id) {
+  saveIdeas(getIdeas().filter((i) => i.id !== id));
+}
+
+export function clearDoneIdeas() {
+  saveIdeas(getIdeas().filter((i) => !i.done));
+}
+
+export function getPendingIdeasCount() {
+  return getIdeas().filter((i) => !i.done).length;
 }
 
 export function getCurrentStreak() {

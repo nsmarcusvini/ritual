@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'ritual-v3';
+const CACHE_VERSION = 'ritual-v4';
 
 const CORE_ASSETS = [
   './',
@@ -15,6 +15,8 @@ const CORE_ASSETS = [
   'js/view-today.js',
   'js/view-habits.js',
   'js/view-history.js',
+  'js/view-ideas.js',
+  'js/idea-sheet.js',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',

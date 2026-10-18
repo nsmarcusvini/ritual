@@ -26,6 +26,9 @@
     <main id="view-root" class="view-root"></main>
 
     <nav class="bottom-nav" aria-label="Navegação principal">
+      <button type="button" id="idea-fab" class="idea-fab" aria-label="Anotar ideia">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 18h5M10.5 21h3M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" /></svg>
+      </button>
       <button type="button" data-route="today" class="nav-btn" aria-current="page">
         <svg viewBox="0 0 24 24" class="nav-icon" aria-hidden="true"><path d="M5 12.5L9.5 17L19 7" /></svg>
         <span>Hoje</span>
@@ -33,6 +36,13 @@
       <button type="button" data-route="habits" class="nav-btn">
         <svg viewBox="0 0 24 24" class="nav-icon" aria-hidden="true"><circle cx="12" cy="12" r="7.5" /><path d="M12 8v4l3 2" /></svg>
         <span>Hábitos</span>
+      </button>
+      <button type="button" data-route="ideas" class="nav-btn">
+        <span class="nav-icon-wrap">
+          <svg viewBox="0 0 24 24" class="nav-icon" aria-hidden="true"><path d="M9.5 18h5M10.5 21h3M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" /></svg>
+          <span class="nav-badge" id="ideas-badge" hidden></span>
+        </span>
+        <span>Ideias</span>
       </button>
       <button type="button" data-route="history" class="nav-btn">
         <svg viewBox="0 0 24 24" class="nav-icon" aria-hidden="true"><path d="M4 19V5M4 19h16M9 19v-7M14 19v-10" /></svg>

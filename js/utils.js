@@ -42,6 +42,18 @@ export function formatDays(days) {
   return WEEK_DAYS.filter((d) => set.has(d.value)).map((d) => d.label).join(', ');
 }
 
+export function formatRelativeDate(iso) {
+  const date = new Date(iso);
+  const start = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const diffDays = Math.round((start(new Date()) - start(date)) / 86400000);
+  if (diffDays === 0) return 'Hoje';
+  if (diffDays === 1) return 'Ontem';
+  if (diffDays < 7) return `Há ${diffDays} dias`;
+  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  return `${d}/${m}`;
+}
+
 export function formatShortDate(dateKey) {
   const [, m, d] = dateKey.split('-');
   return `${d}/${m}`;
