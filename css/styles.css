@@ -824,7 +824,7 @@ body::before {
 .sheet-subtitle {
   font-size: 14px;
   color: var(--color-ink-soft);
-  margin: -10px 0 18px;
+  margin: -8px 0 24px;
   line-height: 1.5;
 }
 
@@ -994,6 +994,7 @@ body::before {
 }
 
 .field-label {
+  display: block;
   font-size: 12px;
   color: var(--color-ink-soft);
   margin-bottom: 8px;

@@ -1,5 +1,5 @@
 // troque a versão a cada deploy: é a mudança neste arquivo que faz os apps instalados se atualizarem
-const CACHE_VERSION = 'ritual-v5';
+const CACHE_VERSION = 'ritual-v6';
 
 const CORE_ASSETS = [
   './',
